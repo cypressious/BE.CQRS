@@ -3,7 +3,7 @@ using System.Net;
 using BE.CQRS.Domain.Events;
 using BE.CQRS.Domain.Processes;
 
-namespace AspCore
+namespace BE.CQRS.AspCore
 {
     public static class StatusCodeConverter
     {
