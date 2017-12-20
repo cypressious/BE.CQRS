@@ -25,7 +25,7 @@ namespace Testrunner
             IMongoDatabase db = new MongoClient("mongodb://localhost:27017/?readPreference=primary").GetDatabase("eventTests");
             var repo = new MongoDomainObjectRepository(new ActivatorDomainObjectActivator(), db, protectorFactory);
 
-        //    StartDenormalizer(db, typeof(Program).GetTypeInfo().Assembly);
+            StartDenormalizer(db, typeof(Program).GetTypeInfo().Assembly, protectorFactory);
 
             Console.WriteLine("next");
             Console.ReadLine();
@@ -71,9 +71,10 @@ namespace Testrunner
             Console.ReadLine();
         }
 
-        private static void StartDenormalizer(IMongoDatabase db, params Assembly[] normalizerASsemblies)
+        private static void StartDenormalizer(IMongoDatabase db, AspNetCoreProtectorFactory factory, params Assembly[] normalizerASsemblies)
         {
-            var subs = new MongoEventSubscriber(db,null);
+            //TODO Wire protector in denormalzier
+            var subs = new MongoEventSubscriber(db, factory);
             var pos = new MongoStreamPositionGateway(db, null);
             var normalizerFactory = new Func<Type, object>(Activator.CreateInstance);
 
