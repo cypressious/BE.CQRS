@@ -11,7 +11,7 @@ namespace BE.CQRS.DataProtection.AspNetCore
 
         public AspNetCoreProtector(IDataProtector protector)
         {
-            Precondition.For(protector, nameof(protector)).NotNull();
+            Precondition.For(protector, nameof(protector)).NotNull(message:"Protector has to bet set");
 
             this.protector = protector;
         }
