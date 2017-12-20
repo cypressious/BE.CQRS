@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using BE.CQRS.Domain.DataProtection;
 using BE.CQRS.Domain.Denormalization;
 
 namespace BE.CQRS.Domain.Configuration
@@ -12,5 +13,7 @@ namespace BE.CQRS.Domain.Configuration
         public Assembly[] DenormalizerAssemblies { get; set; }
 
         public IDenormalizerActivator Activator { get; set; }
+
+        public IEventDataProtectorFactory ProtectorFactory { get; set; }
     }
 }

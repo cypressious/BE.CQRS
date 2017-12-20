@@ -34,7 +34,7 @@ namespace BE.CQRS.Data.MongoDb
             Precondition.For(() => config).NotNull();
             Precondition.For(() => db).NotNull();
 
-            config.Subscriber = new MongoEventSubscriber(db, null);
+            config.Subscriber = new MongoEventSubscriber(db, config.ProtectorFactory);
             return config;
         }
     }
