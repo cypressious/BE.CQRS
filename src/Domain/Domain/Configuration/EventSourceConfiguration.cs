@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using BE.CQRS.Domain.Commands;
+using BE.CQRS.Domain.DataProtection;
 using BE.CQRS.Domain.DomainObjects;
 
 namespace BE.CQRS.Domain.Configuration
@@ -17,5 +18,7 @@ namespace BE.CQRS.Domain.Configuration
         public IDomainObjectRepository DomainObjectRepository { get; set; }
 
         public Assembly[] DomainObjectAssemblies { get; set; }
+
+        public IEventDataProtectorFactory ProtectorFactory { get; set; }
     }
 }
