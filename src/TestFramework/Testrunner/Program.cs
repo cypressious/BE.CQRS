@@ -25,7 +25,7 @@ namespace Testrunner
             IMongoDatabase db = new MongoClient("mongodb://localhost:27017/?readPreference=primary").GetDatabase("eventTests");
             var repo = new MongoDomainObjectRepository(new ActivatorDomainObjectActivator(), db, protectorFactory);
 
-            StartDenormalizer(db, typeof(Program).GetTypeInfo().Assembly, protectorFactory);
+            StartDenormalizer(db, protectorFactory, typeof(Program).GetTypeInfo().Assembly);
 
             Console.WriteLine("next");
             Console.ReadLine();
