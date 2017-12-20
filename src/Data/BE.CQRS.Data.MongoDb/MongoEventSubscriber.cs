@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using BE.CQRS.Data.MongoDb.Commits;
 using BE.CQRS.Data.MongoDb.Repositories;
+using BE.CQRS.Domain.DataProtection;
 using BE.CQRS.Domain.Denormalization;
 using BE.CQRS.Domain.Events;
 using BE.CQRS.Domain.Serialization;
@@ -17,12 +18,14 @@ namespace BE.CQRS.Data.MongoDb
         private bool running;
         private readonly TimeSpan waitTime = TimeSpan.FromMilliseconds(250);
         private readonly TimeSpan idleTime = TimeSpan.FromMilliseconds(500);
-
+        private readonly IEventDataProtectorFactory protectorFactory;
         public string StreamName { get; } = "All";
 
-        public MongoEventSubscriber(IMongoDatabase db)
+        public MongoEventSubscriber(IMongoDatabase db,IEventDataProtectorFactory protectorFactory)
         {
+
             repo = new MongoCommitRepository(db);
+            this.protectorFactory = protectorFactory;
         }
 
         public IObservable<OccuredEvent> Start(long? position)
@@ -30,6 +33,7 @@ namespace BE.CQRS.Data.MongoDb
             long ordinal = position ?? 0;
             running = true;
 
+            var protector = GetProtector();
             return Observable.Create<OccuredEvent>(async observer =>
             {
                 while (running)
@@ -39,7 +43,7 @@ namespace BE.CQRS.Data.MongoDb
                     await repo.EnumerateStartingAfter(ordinal, commit =>
                     {
                         ordinal = commit.Ordinal;
-                        foreach (IEvent @event in mapper.ExtractEvents(commit))
+                        foreach (IEvent @event in mapper.ExtractEvents(commit, protector))
                         {
                             work = true;
                             var dto = new OccuredEvent(@event.Headers.GetLong(EventHeaderKeys.CommitId), @event);
@@ -51,6 +55,17 @@ namespace BE.CQRS.Data.MongoDb
 
                 observer.OnCompleted();
             });
+        }
+
+        private IEventDataProtector GetProtector()
+        {
+            IEventDataProtector protector = null;
+
+            if (protectorFactory != null)
+            {
+                protector = protectorFactory.CreateProtector("eventsource");
+            }
+            return protector;
         }
 
         private async Task Delay(bool work)

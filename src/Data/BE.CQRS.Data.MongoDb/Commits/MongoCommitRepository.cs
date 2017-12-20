@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BE.CQRS.Data.MongoDb.Repositories;
+using BE.CQRS.Domain.DataProtection;
 using BE.CQRS.Domain.DomainObjects;
 using BE.CQRS.Domain.Events;
 using BE.CQRS.Domain.Serialization;
+using BE.FluentGuard;
 using MongoDB.Driver;
 
 namespace BE.CQRS.Data.MongoDb.Commits
@@ -17,6 +19,8 @@ namespace BE.CQRS.Data.MongoDb.Commits
 
         public MongoCommitRepository(IMongoDatabase db) : base(db, "es_Commits")
         {
+            Precondition.For(db, nameof(db)).NotNull("MongoDatabase must be set!");
+
             Mapper = new EventMapper(new JsonEventSerializer(new EventTypeResolver()));
             identifier = new MongoGlobalIdentifier(db);
             PrepareCollection(Collection).Wait();
@@ -80,11 +84,13 @@ namespace BE.CQRS.Data.MongoDb.Commits
             );
         }
 
-        public async Task<AppendResult> SaveAsync(IDomainObject domainObject, bool versionCheck)
+        public async Task<AppendResult> SaveAsync(IDomainObject domainObject, bool versionCheck, IEventDataProtector protector)
         {
+
+
             EventCommit commit = Mapper.ToCommit(domainObject.Id, domainObject.GetType(), domainObject.OriginVersion,
                 domainObject.CommitVersion + 1,
-                domainObject.GetUncommittedEvents().ToList());
+                domainObject.GetUncommittedEvents().ToList(), protector);
 
             if (commit.Events.Count == 0)
             {
@@ -92,7 +98,7 @@ namespace BE.CQRS.Data.MongoDb.Commits
                 return new AppendResult(false, commit.VersionEvents);
             }
 
-            Debug.WriteLine($"Saving domainObject \"{domainObject.Id}\" - VersionCheck {versionCheck}", "BE.CQRS");
+            Debug.WriteLine($"Saving domainObject \"{domainObject.Id}\" - {commit.Events.Count} events -  VersionCheck {versionCheck}", "BE.CQRS");
             AppendResult result;
 
             result = await InsertEvent(commit, versionCheck);

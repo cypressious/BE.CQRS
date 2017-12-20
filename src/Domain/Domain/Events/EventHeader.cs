@@ -17,8 +17,21 @@ namespace BE.CQRS.Domain.Events
 
         public DateTimeOffset Created => GetDateTimeOffset(EventHeaderKeys.Created);
 
+        public bool IsProtected
+        {
+            get
+            {
+                return HasKey(EventHeaderKeys.Protected) && GetBool(EventHeaderKeys.Protected);
+            }
+        }
+
         public EventHeader()
         {
+        }
+
+        public void SetProtected()
+        {
+            Set(EventHeaderKeys.Protected, true);
         }
 
         public EventHeader(IDictionary<string, string> dictionary)
@@ -66,6 +79,11 @@ namespace BE.CQRS.Domain.Events
         public int GetInteger(string key)
         {
             return ParseValue(key, v => int.Parse(v, CultureInfo.InvariantCulture));
+        }
+
+        public bool GetBool(string key)
+        {
+            return ParseValue(key, bool.Parse);
         }
 
         public long GetLong(string key)

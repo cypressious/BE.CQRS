@@ -13,7 +13,7 @@ namespace BE.CQRS.Data.MongoDb
             Precondition.For(() => config).NotNull();
             Precondition.For(() => config.Activator).NotNull();
 
-            var repo = new MongoDomainObjectRepository(config.Activator, db);
+            var repo = new MongoDomainObjectRepository(config.Activator, db, config.ProtectorFactory);
 
             config.DomainObjectRepository = repo;
 
@@ -34,7 +34,7 @@ namespace BE.CQRS.Data.MongoDb
             Precondition.For(() => config).NotNull();
             Precondition.For(() => db).NotNull();
 
-            config.Subscriber = new MongoEventSubscriber(db);
+            config.Subscriber = new MongoEventSubscriber(db, null);
             return config;
         }
     }

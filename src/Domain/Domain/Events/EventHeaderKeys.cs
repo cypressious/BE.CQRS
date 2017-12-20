@@ -11,5 +11,6 @@
         public const string AssemblyEventType = "AssemblyEventType";
         public const string EventNumber = "EventNumber";
         public const string Timestamp = "Timestamp";
+        public const string Protected = "Protected";
     }
 }

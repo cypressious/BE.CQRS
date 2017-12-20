@@ -2,6 +2,6 @@
 {
     public interface IEventDataProtectorFactory
     {
-        IEventDataProtector CreateProtector(string prefix, string[] subScopes);
+        IEventDataProtector CreateProtector(string prefix,params string[] subScopes);
     }
 }

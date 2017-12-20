@@ -7,9 +7,11 @@ using BE.CQRS.Data.MongoDb.Commits;
 using BE.CQRS.Data.MongoDb.Repositories;
 using BE.CQRS.Data.MongoDb.Streams;
 using BE.CQRS.Domain;
+using BE.CQRS.Domain.DataProtection;
 using BE.CQRS.Domain.DomainObjects;
 using BE.CQRS.Domain.Events;
 using BE.CQRS.Domain.Serialization;
+using BE.FluentGuard;
 using MongoDB.Driver;
 
 namespace BE.CQRS.Data.MongoDb
@@ -19,10 +21,14 @@ namespace BE.CQRS.Data.MongoDb
         private readonly MongoCommitRepository repository;
         private readonly StreamNamer namer = new StreamNamer();
         private readonly EventMapper mapper = new EventMapper(new JsonEventSerializer(new EventTypeResolver()));
+        private readonly IEventDataProtectorFactory protectorFactory;
 
-        public MongoDomainObjectRepository(IDomainObjectActivator activator, IMongoDatabase db) : base(activator)
+        public MongoDomainObjectRepository(IDomainObjectActivator activator, IMongoDatabase db, IEventDataProtectorFactory protectorFactory) : base(activator)
         {
+            Precondition.For(db, nameof(db)).NotNull("MongoDatabase has to be set!");
+
             repository = new MongoCommitRepository(db);
+            this.protectorFactory = protectorFactory;
         }
 
         public Task<long> GetCommitCount()
@@ -53,7 +59,7 @@ namespace BE.CQRS.Data.MongoDb
 
         protected override Task<AppendResult> SaveUncomittedEventsAsync<T>(T domainObject, bool versionCheck)
         {
-            return repository.SaveAsync(domainObject, versionCheck);
+            return repository.SaveAsync(domainObject, versionCheck, GetProtector());
         }
 
         protected override IObservable<IEvent> ReadEvents(string streamName, CancellationToken token)
@@ -61,12 +67,13 @@ namespace BE.CQRS.Data.MongoDb
             string id = namer.IdByStreamName(streamName);
             string type = namer.TypeNameByStreamName(streamName);
 
+            IEventDataProtector protector = GetProtector();
             return Observable.Create<IEvent>(async observer =>
             {
                 await repository.EnumerateCommits(type, id,
                     x =>
                     {
-                        IEnumerable<IEvent> events = mapper.ExtractEvents(x);
+                        IEnumerable<IEvent> events = mapper.ExtractEvents(x, protector);
 
                         foreach (IEvent @event in events)
                         {
@@ -77,6 +84,17 @@ namespace BE.CQRS.Data.MongoDb
                 {
                 };
             });
+        }
+
+        private IEventDataProtector GetProtector()
+        {
+            IEventDataProtector protector = null;
+
+            if (protectorFactory != null)
+            {
+                protector = protectorFactory.CreateProtector("eventsource");
+            }
+            return protector;
         }
     }
 }
