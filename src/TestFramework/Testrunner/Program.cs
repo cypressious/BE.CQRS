@@ -1,12 +1,15 @@
 ﻿using System;
+using System.IO;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using BE.CQRS.Data.MongoDb;
 using BE.CQRS.Data.MongoDb.Streams;
+using BE.CQRS.DataProtection.AspNetCore;
 using BE.CQRS.Domain.Denormalization;
 using BE.CQRS.Domain.DomainObjects;
 using BE.CQRS.Domain.Events.Handlers;
+using Microsoft.AspNetCore.DataProtection;
 using MongoDB.Driver;
 
 namespace Testrunner
@@ -15,10 +18,14 @@ namespace Testrunner
     {
         static void Main(string[] args)
         {
-            IMongoDatabase db = new MongoClient("mongodb://localhost:27017/?readPreference=primary").GetDatabase("eventTests");
-            var repo = new MongoDomainObjectRepository(new ActivatorDomainObjectActivator(), db, null);
+            var dataProtectionProvider = DataProtectionProvider.Create(
+                new DirectoryInfo(@"C:\keys"));
 
-            StartDenormalizer(db, typeof(Program).GetTypeInfo().Assembly);
+            var protectorFactory = new AspNetCoreProtectorFactory(dataProtectionProvider);
+            IMongoDatabase db = new MongoClient("mongodb://localhost:27017/?readPreference=primary").GetDatabase("eventTests");
+            var repo = new MongoDomainObjectRepository(new ActivatorDomainObjectActivator(), db, protectorFactory);
+
+        //    StartDenormalizer(db, typeof(Program).GetTypeInfo().Assembly);
 
             Console.WriteLine("next");
             Console.ReadLine();
