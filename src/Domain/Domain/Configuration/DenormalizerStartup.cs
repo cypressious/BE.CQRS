@@ -29,7 +29,7 @@ namespace BE.CQRS.Domain.Configuration
         public static ConventionEventHandler CreateConventionHandler(this DenormalizerConfiguration config,
             ILoggerFactory logger)
         {
-            return new ConventionEventHandler(config.Activator, logger, config.DenormalizerAssemblies)
+            return new ConventionEventHandler(config.Activator, logger, config.DenormalizerAssemblies);
         }
 
         public static EventDenormalizer UseConvetionBasedDenormalizer(this IApplicationBuilder app,
