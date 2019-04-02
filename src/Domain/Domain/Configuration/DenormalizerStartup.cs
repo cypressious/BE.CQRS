@@ -12,7 +12,8 @@ namespace BE.CQRS.Domain.Configuration
 {
     public static class DenormalizerStartup
     {
-        public static IServiceCollection AddDenormalizers(this IServiceCollection services, DenormalizerConfiguration config)
+        public static IServiceCollection AddDenormalizers(this IServiceCollection services,
+            DenormalizerConfiguration config)
         {
             Precondition.For(() => services).NotNull();
             Precondition.For(() => config).NotNull();
@@ -25,20 +26,28 @@ namespace BE.CQRS.Domain.Configuration
             return services;
         }
 
-        public static EventDenormalizer UseConvetionBasedDenormalizer(this IApplicationBuilder app,ILoggerFactory logger) // TODO Extract Object Factory like the DomainObjectFacotry
+        public static ConventionEventHandler CreateConventionHandler(this DenormalizerConfiguration config,
+            ILoggerFactory logger)
+        {
+            return new ConventionEventHandler(config.Activator, logger, config.DenormalizerAssemblies)
+        }
+
+        public static EventDenormalizer UseConvetionBasedDenormalizer(this IApplicationBuilder app,
+            ILoggerFactory logger) // TODO Extract Object Factory like the DomainObjectFacotry
         {
             Precondition.For(() => app).NotNull();
 
             var config = app.ApplicationServices.GetRequiredService<DenormalizerConfiguration>();
 
             var result = new EventDenormalizer(config.Subscriber,
-                new ConventionEventHandler(config.Activator,logger, config.DenormalizerAssemblies),
+                config.CreateConventionHandler(logger),
                 config.StreamPositionGateway);
 
             return result;
         }
 
-        public static DenormalizerConfiguration SetDenormalizerAssemblies(this DenormalizerConfiguration config, params Assembly[] assemblies)
+        public static DenormalizerConfiguration SetDenormalizerAssemblies(this DenormalizerConfiguration config,
+            params Assembly[] assemblies)
         {
             Precondition.For(() => config).NotNull();
             Precondition.For(() => assemblies).NotNull().True(x => x.Any());
