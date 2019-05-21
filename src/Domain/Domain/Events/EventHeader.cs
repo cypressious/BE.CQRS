@@ -17,6 +17,8 @@ namespace BE.CQRS.Domain.Events
 
         public DateTimeOffset Created => GetDateTimeOffset(EventHeaderKeys.Created);
 
+        private readonly ConcurrentBag<LinkTo> links = new ConcurrentBag<LinkTo>();
+
         public EventHeader()
         {
         }
@@ -132,14 +134,17 @@ namespace BE.CQRS.Domain.Events
             {
                 return value;
             }
+
             if (!string.IsNullOrWhiteSpace(value))
             {
                 if (type == typeof(Guid))
                 {
                     return Guid.Parse(value);
                 }
+
                 return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
             }
+
             return Activator.CreateInstance(type);
         }
 
@@ -181,6 +186,11 @@ namespace BE.CQRS.Domain.Events
             }
 
             return result;
+        }
+
+        internal void AddLinkTo(LinkTo link)
+        {
+            links.Add(link);
         }
 
         public bool HasKey(string key)

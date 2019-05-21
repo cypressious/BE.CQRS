@@ -12,9 +12,8 @@ namespace Tests.Fakes
         [Create]
         public void Foo(CreateCommandSecond cmd)
         {
-            RaiseEvent<SampleCreateEvent>(e =>
-            {
-            });
+            RaiseEvent<SampleCreateEvent>(e => { })
+                .LinkTo<SampleDomainObject>("123");
         }
     }
 }

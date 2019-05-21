@@ -1,4 +1,5 @@
 ﻿using System;
+using BE.CQRS.Domain.DomainObjects;
 
 namespace BE.CQRS.Domain.Events
 {
@@ -23,10 +24,19 @@ namespace BE.CQRS.Domain.Events
 
         public void AssertValidation()
         {
-            if(!Validate())
+            if (!Validate())
             {
-                throw new InvalidOperationException("Event is in a invalid state !"); //TODO Better exception type and more information what is wrong
+                throw
+                    new InvalidOperationException(
+                        "Event is in a invalid state !"); //TODO Better exception type and more information what is wrong
             }
+        }
+
+        public IEvent LinkTo<T>(string aggregateId) where T : IDomainObject
+        {
+            var linkTo = new LinkTo(typeof(T), aggregateId);
+            Headers.AddLinkTo(linkTo);
+            return this;
         }
     }
 }

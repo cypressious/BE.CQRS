@@ -4,5 +4,6 @@ namespace Tests.Fakes
 {
     public sealed class SampleCreateEvent : EventBase
     {
+    
     }
 }

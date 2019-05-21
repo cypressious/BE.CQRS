@@ -12,15 +12,16 @@ namespace Testrunner
         [Create]
         public void Execute()
         {
-            RaiseEvent<MyEvent>(x => x.Id = "1231231");
+            RaiseEvent<MyEvent>(x => x.Id = "1231231")
+                .LinkTo<SampleBo>("1");
         }
 
         [Update]
         public void Next()
         {
-            RaiseEvent<SecondEvent>(x =>
-            {
-            });
+            RaiseEvent<SecondEvent>(x => { })
+                .LinkTo<SampleBo>("2");
+            ;
         }
     }
 }

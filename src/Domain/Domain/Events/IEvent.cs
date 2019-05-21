@@ -1,4 +1,6 @@
-﻿namespace BE.CQRS.Domain.Events
+﻿using BE.CQRS.Domain.DomainObjects;
+
+namespace BE.CQRS.Domain.Events
 {
     public interface IEvent
     {
@@ -7,5 +9,7 @@
         bool Validate();
 
         void AssertValidation();
+
+        IEvent LinkTo<T>(string aggregateId) where T : IDomainObject;
     }
 }
