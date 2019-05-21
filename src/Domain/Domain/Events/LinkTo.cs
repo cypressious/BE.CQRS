@@ -4,19 +4,13 @@ namespace BE.CQRS.Domain.Events
 {
     public sealed class LinkTo
     {
-        public string AggregateId { get; set; }
+        public string AggregateId { get;  }
 
-        public string AggregateTypFullName { get; set; }
-        public string AssemblyQualifiedName { get; set; }
-
-        public LinkTo()
-        {
-        }
-
+        public string AggregateTypFullName { get;  }
+ 
         public LinkTo(Type type, string id)
         {
             AggregateId = id;
-            AssemblyQualifiedName = type.AssemblyQualifiedName;
             AggregateTypFullName = type.FullName;
         }
     }

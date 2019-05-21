@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BE.CQRS.Domain.DomainObjects;
 
 namespace BE.CQRS.Domain.Events
@@ -38,5 +39,7 @@ namespace BE.CQRS.Domain.Events
             Headers.AddLinkTo(linkTo);
             return this;
         }
+
+   
     }
 }

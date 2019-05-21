@@ -43,8 +43,6 @@ namespace Testrunner
             List<Type> types = new List<Type>();
             types.Add(typeof(SecondEvent));
 
-            var filteresEvents = repo.Get<SampleBo>("390364cd-9e4c-4ab4-95ab-7a83143ab39c", types.ToHashSet(), CancellationToken.None).LastOrDefault();
-
             StartDenormalizer(serviceProvider, typeof(Program).GetTypeInfo().Assembly);
 
             Console.WriteLine("next");
@@ -120,7 +118,7 @@ namespace Testrunner
 
             IMongoDatabase db =
                 new MongoClient(
-                        "mongodb://localhost:27017/?readPreference=primary")
+                        "mongodb://idsrv:tztb0SS8B2INnFFi@cluster0-shard-00-00-fyly5.gcp.mongodb.net:27017,cluster0-shard-00-01-fyly5.gcp.mongodb.net:27017,cluster0-shard-00-02-fyly5.gcp.mongodb.net:27017/test?ssl=true&connectTimeoutMS=10000&authSource=admin&authMechanism=SCRAM-SHA-1")
                     .GetDatabase("eventTests");
 
             services.AddSingleton<IMongoDatabase>(db);

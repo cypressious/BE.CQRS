@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace BE.CQRS.Domain.Events
 {
@@ -21,6 +22,11 @@ namespace BE.CQRS.Domain.Events
 
         public EventHeader()
         {
+        }
+
+        public List<LinkTo> GetLinkTo()
+        {
+            return links.ToList();
         }
 
         public EventHeader(IDictionary<string, string> dictionary)

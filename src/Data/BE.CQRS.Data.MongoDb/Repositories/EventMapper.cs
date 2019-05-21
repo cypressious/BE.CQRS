@@ -17,7 +17,8 @@ namespace BE.CQRS.Data.MongoDb.Repositories
             this.serializer = serializer;
         }
 
-        public EventCommit ToCommit(string domainobjectId, Type domainObjectType, long originVersion, long commitVersion,
+        public EventCommit ToCommit(string domainobjectId, Type domainObjectType, long originVersion,
+            long commitVersion,
             IList<IEvent> events)
         {
             Dictionary<string, EventDto> items = MapEvents(domainobjectId, events);
@@ -79,10 +80,30 @@ namespace BE.CQRS.Data.MongoDb.Repositories
                 };
 
                 dto.Headers.Remove(EventHeaderKeys.AggregateId);
+
+                MapLinkTos(@event, dto);
+
+
                 items.Add(i.ToString(), dto);
             }
 
             return items;
+        }
+
+        private static void MapLinkTos(IEvent @event, EventDto dto)
+        {
+            var links = @event.Headers.GetLinkTo();
+
+            if (links != null && links.Any())
+            {
+                var mongoLinks = links.Select(x => new MongoLinkTo()
+                {
+                    AggregateId = x.AggregateId,
+                    AggregateTypeFullName = x.AggregateTypFullName
+                }).ToList();
+
+                dto.Links.AddRange(mongoLinks);
+            }
         }
     }
 }

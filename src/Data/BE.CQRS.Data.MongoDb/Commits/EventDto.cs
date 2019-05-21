@@ -16,5 +16,17 @@ namespace BE.CQRS.Data.MongoDb.Commits
         [BsonRequired]
         [BsonElement("b")]
         public string Body { get; set; }
+
+        [BsonElement("lnkto")]
+        [BsonIgnoreIfDefault]
+        public List<MongoLinkTo> Links { get; set; } = new List<MongoLinkTo>();
+    }
+
+    public  sealed class MongoLinkTo
+    {
+        public string AggregateId { get; set; }
+
+        public string AggregateTypeFullName { get; set; }
+
     }
 }

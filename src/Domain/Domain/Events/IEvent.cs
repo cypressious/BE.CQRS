@@ -1,4 +1,5 @@
-﻿using BE.CQRS.Domain.DomainObjects;
+﻿using System.Collections.Generic;
+using BE.CQRS.Domain.DomainObjects;
 
 namespace BE.CQRS.Domain.Events
 {
@@ -11,5 +12,6 @@ namespace BE.CQRS.Domain.Events
         void AssertValidation();
 
         IEvent LinkTo<T>(string aggregateId) where T : IDomainObject;
+
     }
 }
