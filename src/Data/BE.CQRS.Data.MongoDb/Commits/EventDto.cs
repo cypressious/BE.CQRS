@@ -24,8 +24,10 @@ namespace BE.CQRS.Data.MongoDb.Commits
 
     public  sealed class MongoLinkTo
     {
+        [BsonElement("aid")]
         public string AggregateId { get; set; }
 
+        [BsonElement("atfn")]
         public string AggregateTypeFullName { get; set; }
 
     }
